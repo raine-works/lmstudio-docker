@@ -121,6 +121,24 @@ The workflow:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Troubleshooting
+
+### GitHub Actions Deployment Issues
+
+If you encounter a 403 Forbidden error when pushing to GHCR, check the following:
+
+1. **Repository Permissions**: Ensure your repository allows package publishing
+2. **Token Permissions**: Verify that `GITHUB_TOKEN` has `packages: write` permission
+3. **Repository Visibility**: Make sure the repository settings allow package publishing
+4. **Owner/Repository Name**: Confirm the repository name matches `raine-works/lmstudio-docker`
+
+### Common Solutions
+
+- Navigate to **Settings** → **Packages** in your GitHub repository and ensure package publishing is enabled
+- Check that you have write access to the repository
+- If using a private repository, verify organization-level package permissions
+- Try re-running the workflow after a few minutes (sometimes temporary auth issues resolve)
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
