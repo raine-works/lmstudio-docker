@@ -1,5 +1,17 @@
 # LM Studio Docker
 
+This project provides a complete Dockerized environment for running LM Studio, a desktop application for running and developing large language models locally. The container includes all necessary components to run LM Studio with GPU support, SSH access, and pre-configured CLI tools.
+
+## Features
+- Run LM Studio in a containerized environment with full GPU support
+- Access LM Studio through SSH terminal or web interface  
+- Built-in SSH server for remote access and debugging
+- Pre-configured with LM Studio CLI tools and dependencies
+- Multi-architecture support (AMD64, ARM64)
+- Automated CI/CD pipeline with GitHub Actions
+- Semantic versioning for Docker images
+- Comprehensive documentation and troubleshooting guides
+
 Docker image for running LM Studio, a desktop application for running and developing large language models locally.
 
 ## Features
