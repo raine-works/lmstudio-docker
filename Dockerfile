@@ -1,33 +1,43 @@
-# Use CUDA 12.4 runtime on Ubuntu 22.04
+# 1. Use NVIDIA CUDA 12.4 base (compatible with most RunPod hosts in 2026)
 FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
-# 1. Install system dependencies for LM Studio (headless requirements)
+# 2. Install system dependencies + SSH for RunPod terminal
 RUN apt-get update && apt-get install -y \
     curl \
     libfuse2 \
     libnss3 \
     libasound2 \
+    libgomp1 \
+    openssh-server \
+    sudo \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Install LM Studio CLI (lms) using the official script
+# 3. Configure SSH (Ensures the Web Terminal stays connected)
+RUN mkdir /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# 4. Install LM Studio CLI (lms)
 RUN curl -fsSL https://lmstudio.ai/install.sh | bash
 
-# 3. Create a symbolic link and bootstrap the lms binary
-# The script installs to ~/.lmstudio/bin/lms. We move/link it to make it global.
-RUN ln -s /root/.lmstudio/bin/lms /usr/local/bin/lms && \
-    /usr/local/bin/lms bootstrap
-
-# 4. Set Environment Variables
-# Ensures the container knows where the LM Studio binaries live
+# 5. Set Environment Variables
+# Ensures the 'lms' command is available in all shells
 ENV PATH="/root/.lmstudio/bin:${PATH}"
-# Prevents some 'sandboxing' errors common in containerized GPU environments
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
-# 5. Expose the default LM Studio port
-EXPOSE 1234
+# 6. Bootstrap the binary
+RUN lms bootstrap
 
-# 6. Startup Command: Initialize the daemon and start the server
-# --cors=true allows your Zed editor to talk to the RunPod IP
-# --bind 0.0.0.0 ensures it listens on the network interface, not just localhost
-CMD ["/bin/bash", "-c", "lms daemon up && lms server start --port 1234 --cors=true --bind 0.0.0.0"]
+# 7. Expose ports (22 for Terminal/SSH, 1234 for LM Studio API)
+EXPOSE 22 1234
+
+# Copy the entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Use the script as the entry point
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Label for easier identification in GHCR
 LABEL org.opencontainers.image.source="https://github.com/raine-works/lmstudio-docker"
