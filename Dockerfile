@@ -26,6 +26,9 @@ RUN curl -fsSL https://lmstudio.ai/install.sh | bash
 ENV PATH="/root/.lmstudio/bin:${PATH}"
 ENV APPIMAGE_EXTRACT_AND_RUN=1
 
+ARG PORT
+ENV PORT="${PORT:-1234}"
+
 # 6. Bootstrap the binary
 RUN lms bootstrap
 
